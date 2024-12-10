@@ -11,6 +11,7 @@ const transporter = nodemailer.createTransport({
 exports.sendMail = async(receiverEmail,subject,body) => {
     await transporter.sendMail({
     from: process.env.EMAIL,
+    sender: "Humanitarian Aid Coordination System",
     to: receiverEmail,
     subject: subject,
     html: body
