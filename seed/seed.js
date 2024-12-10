@@ -1,7 +1,7 @@
-const {seedUser}=require("./User")
-const {connectToDB}=require("../database/db")
+const { seedUser } = require("./User")
+const { connectToDB } = require("../database/db")
 
-const seedData=async()=>{
+const seedData = async () => {
     try {
         await connectToDB()
         console.log('Seed [started] please wait..');

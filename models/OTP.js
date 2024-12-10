@@ -1,22 +1,22 @@
-const mongoose=require("mongoose")
-const {Schema}=mongoose
+const mongoose = require("mongoose")
+const { Schema } = mongoose
 
-const otpSchema=new Schema({
-    user:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        required:true
+const otpSchema = new Schema({
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
     },
-    otp:{
-        type:String,
-        required:true
+    otp: {
+        type: String,
+        required: true
     },
-    expiresAt:{
-        type:Date,
-        required:true
+    expiresAt: {
+        type: Date,
+        required: true
     },
 })
 
 
 
-module.exports=mongoose.model("OTP",otpSchema)
+module.exports = mongoose.model("OTP", otpSchema)
