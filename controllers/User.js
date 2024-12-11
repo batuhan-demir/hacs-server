@@ -3,8 +3,7 @@ const User = require("../models/User")
 exports.getById = async (req, res) => {
     try {
         const { id } = req.params
-        const result = (await User.findById(id, { password: false })).toObject()
-        // delete result.password
+        const result = await User.findById(id, { password: false })
         res.status(200).json(result)
 
     } catch (error) {
