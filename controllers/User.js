@@ -8,7 +8,7 @@ exports.getById = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Error getting your details, please try again later' })
+        res.status(500).json({ message: req.__("User Getting Details Error") })
     }
 }
 exports.updateById = async (req, res) => {
@@ -20,6 +20,6 @@ exports.updateById = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Error getting your details, please try again later' })
+        res.status(500).json({ message: req.__("User Getting Details Error") })
     }
 }

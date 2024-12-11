@@ -31,7 +31,7 @@ exports.signup = async (req, res) => {
 
         // if user already exists
         if (existingUser) {
-            return res.status(400).json({ "message": "User already exists" })
+            return res.status(400).json({ "message": req.__("User Already Exists") })
         }
 
         // hashing the password
@@ -72,7 +72,7 @@ exports.signup = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Error occured during signup, please try again later" })
+        res.status(500).json({ message: req.__("Some Error Occured Signup") })
     }
 }
 
@@ -107,10 +107,10 @@ exports.login = async (req, res) => {
         }
 
         res.clearCookie('token');
-        return res.status(404).json({ message: "Invalid Credentails" })
+        return res.status(404).json({ message: req.__("Invalid Credentials") })
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Some error occured while logging in, please try again later' })
+        res.status(500).json({ message: req.__("Some Error Occured Login") })
     }
 }
 
@@ -126,7 +126,7 @@ exports.verifyOtp = async (req, res) => {
 
         // if user id does not exists then returns a 404 response
         if (!isValiduserID) {
-            return res.status(404).json({ message: 'User not Found, for which the otp has been generated' })
+            return res.status(404).json({ message: req.__("User Not Found") })
         }
 
         // checks if otp exists by that user id
@@ -134,13 +134,13 @@ exports.verifyOtp = async (req, res) => {
 
         // if otp does not exists then returns a 404 response
         if (!isOtpExisting) {
-            return res.status(404).json({ message: 'Otp not found' })
+            return res.status(404).json({ message: req.__("OTP Not Found") })
         }
 
         // checks if the otp is expired, if yes then deletes the otp and returns response accordinly
         if (isOtpExisting.expiresAt < new Date()) {
             await Otp.findByIdAndDelete(isOtpExisting._id)
-            return res.status(400).json({ message: "Otp has been expired" })
+            return res.status(400).json({ message: req.__("OTP Expired") })
         }
 
         // checks if otp is there and matches the hash value then updates the user verified status to true and returns the updated user
@@ -153,12 +153,12 @@ exports.verifyOtp = async (req, res) => {
         //TODO add a limit to the number of otp verification attempts
         //TODO refresh token after otp verification
         // in default case if none of the conidtion matches, then return this response
-        return res.status(400).json({ message: 'Otp is invalid or expired' })
+        return res.status(400).json({ message: req.__("OTP General Error") })
 
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Some Error occured" })
+        res.status(500).json({ message: req.__("Some Error Occured") })
     }
 }
 
@@ -173,7 +173,7 @@ exports.resendOtp = async (req, res) => {
         const existingUser = await User.findById(req.body.userID)
 
         if (!existingUser) {
-            return res.status(404).json({ "message": "User not found" })
+            return res.status(404).json({ "message": req.__("User Not Found") })
         }
 
         await Otp.deleteMany({ user: existingUser._id })
@@ -189,9 +189,9 @@ exports.resendOtp = async (req, res) => {
             `OTP Verification for Your HACS Account`,
             `Your One-Time Password (OTP) for account verification is: <b><strong>${otp}</strong></b>.</br>Do not share this OTP with anyone for security reasons`)
 
-        res.status(201).json({ 'message': "OTP sent" })
+        res.status(201).json({ 'message': req.__("OTP Sent") })
     } catch (error) {
-        res.status(500).json({ 'message': "Some error occured while resending otp, please try again later" })
+        res.status(500).json({ 'message': req.__("OTP Sent Error") })
         console.log(error);
     }
 }
@@ -209,7 +209,7 @@ exports.forgotPassword = async (req, res) => {
 
         // if email does not exists returns a 404 response
         if (!isExistingUser) {
-            return res.status(404).json({ message: "Provided email does not exists" })
+            return res.status(404).json({ message: req.__("Mail Not Found") })
         }
 
         await PasswordResetToken.deleteMany({ user: isExistingUser._id })
@@ -236,11 +236,11 @@ exports.forgotPassword = async (req, res) => {
         Thank you,
         The HACS Team</p>`)
 
-        res.status(200).json({ message: `Password Reset link sent to ${isExistingUser.email}` })
+        res.status(200).json({ message: `${req.__("Password Reset Link Sent")}: ${isExistingUser.email}` })
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Error occured while sending password reset mail' })
+        res.status(500).json({ message: req.__("Password Reset Link Sent Error") })
     }
 }
 
@@ -259,7 +259,7 @@ exports.resetPassword = async (req, res) => {
 
         // if user does not exists then returns a 404 response
         if (!isExistingUser) {
-            return res.status(404).json({ message: "User does not exists" })
+            return res.status(404).json({ message: req.__("User Not Found") })
         }
 
         // fetches the resetPassword token by the userID
@@ -267,13 +267,13 @@ exports.resetPassword = async (req, res) => {
 
         // If token does not exists for that userID, then returns a 404 response
         if (!isResetTokenExisting) {
-            return res.status(404).json({ message: "Reset Link is Not Valid" })
+            return res.status(404).json({ message: req.__("Reset Link Invalid") })
         }
 
         // if the token has expired then deletes the token, and send response accordingly
         if (isResetTokenExisting.expiresAt < new Date()) {
             await PasswordResetToken.findByIdAndDelete(isResetTokenExisting._id)
-            return res.status(404).json({ message: "Reset Link has been expired" })
+            return res.status(404).json({ message: req.__("Reset Link Expired") })
         }
 
         // if token exists and is not expired and token matches the hash, then resets the user password and deletes the token
@@ -284,14 +284,14 @@ exports.resetPassword = async (req, res) => {
 
             // resets the password after hashing it
             await User.findByIdAndUpdate(isExistingUser._id, { password: await bcrypt.hash(req.body.password, 10) })
-            return res.status(200).json({ message: "Password Updated Successfuly" })
+            return res.status(200).json({ message: req.__("Password Reset Successful") })
         }
 
-        return res.status(404).json({ message: "Reset Link has been expired" })
+        return res.status(404).json({ message: req.__("Reset Link Invalid") })
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Error occured while resetting the password, please try again later" })
+        res.status(500).json({ message: req.__("Some Error Occurred Reset Password") })
     }
 }
 
@@ -303,7 +303,7 @@ exports.logout = async (req, res) => {
             httpOnly: true,
             secure: process.env.PRODUCTION === 'true' ? true : false
         })
-        res.status(200).json({ message: 'Logout successful' })
+        res.status(200).json({ message: req.__("Logout Success") })
     } catch (error) {
         console.log(error);
     }

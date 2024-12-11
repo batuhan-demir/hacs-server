@@ -9,7 +9,7 @@ exports.verifyToken = async (req, res, next) => {
 
         // if token is not there, return 401 response
         if (!token) {
-            return res.status(401).json({ message: "Token missing, please login again" })
+            return res.status(401).json({ message: req.__("Token Missing") })
         }
         // verifies the token 
         const decodedInfo = jwt.verify(token, process.env.SECRET_KEY)
@@ -22,7 +22,7 @@ exports.verifyToken = async (req, res, next) => {
 
         // if token is invalid then sends the response accordingly
         else {
-            return res.status(401).json({ message: "Invalid Token, please login again" })
+            return res.status(401).json({ message: req.__("Invalid Token") })
         }
 
     } catch (error) {
@@ -30,13 +30,13 @@ exports.verifyToken = async (req, res, next) => {
         console.log(error);
 
         if (error instanceof jwt.TokenExpiredError) {
-            return res.status(401).json({ message: "Token expired, please login again" });
+            return res.status(401).json({ message: req.__("Token Expired") });
         }
         else if (error instanceof jwt.JsonWebTokenError) {
-            return res.status(401).json({ message: "Invalid Token, please login again" });
+            return res.status(401).json({ message: req.__("Invalid Token") });
         }
         else {
-            return res.status(500).json({ message: "Internal Server Error" });
+            return res.status(500).json({ message: req.__("Internal Server Error") });
         }
     }
 }

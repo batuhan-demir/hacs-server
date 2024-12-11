@@ -1,4 +1,35 @@
 {
-    "Welcome": "Welcome",
-    "Hello": "Hello"
+    "Some Error Occurred": "Some error occurred, please try again later.",
+    "Some Error Occurred Signup": "Error occured during signup, please try again later.",
+    "Some Error Occurred Login": "Error occured during logging in, please try again later.",
+    "Some Error Occurred Reset Password": "Error occured while resetting the password, please try again later.",
+   
+    
+    "OTP Sent": "OTP has been sent to your email.",
+    "OTP General Error": "OTP is invalid or expired.",
+    "OTP Sent Error": "Some error occured while resending OTP, please try again later.",
+    "OTP Not Found": "OTP not found.",
+    "OTP Expired": "OTP has been expired.",
+   
+
+    "User Getting Data Error": "Error getting your details, please try again later.",
+    "Invalid Credentials": "Invalid credentials.",
+    "User Not Found": "User not found.",
+    "User Already Exists": "User already exists.",
+    
+
+    "Mail Not Found": "Provided email does not exists.",
+    "Password Reset Link Sent": "Password reset link sent to your email.",
+    "Password Reset Link Sent Error": "Some error occured while sending password reset link, please try again later.",
+    "Reset Link Invalid": "Reset link is invalid.",
+    "Reset Link Expired": "Reset link has been expired.",
+    "Password Reset Success": "Password updated successfully.",
+
+    "Logout Success": "Logged out successfully.",
+
+    "Token Missing": "Token missing, please login again.",
+    "Invalid Token": "Invalid Token, please login again",
+    "Token Expired": "Token expired, please login again.",
+
+    "Internal Server Error": "Internal server error."
 }
