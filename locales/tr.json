@@ -1,4 +1,35 @@
 {
-    "Welcome": "Hoşgeldiniz",
-    "Hello": "Merhaba"
+    "Some Error Occurred": "Bir hata oluştu, lütfen daha sonra tekrar deneyin.",
+    "Some Error Occurred Signup": "Kayıt olma sırasında hata oluştu, lütfen daha sonra tekrar deneyin.",
+    "Some Error Occurred Login": "Giriş yaparken hata oluştu, lütfen daha sonra tekrar deneyin.",
+    "Some Error Occurred Reset Password": "Şifre sıfırlama sırasında hata oluştu, lütfen daha sonra tekrar deneyin.",
+   
+    
+    "OTP Sent": "OTP kodunuz e-postanıza gönderildi.",
+    "OTP General Error": "OTP kodu geçersiz veya süresi dolmuş.",
+    "OTP Sent Error": "OTP kodu yeniden gönderilirken bir hata oluştu, lütfen daha sonra tekrar deneyin.",
+    "OTP Not Found": "OTP kodu bulunamadı.",
+    "OTP Expired": "OTP kodunuzun süresi dolmuş.",
+   
+
+    "User Getting Data Error": "Bilgileriniz alınırken bir hata oluştu, lütfen daha sonra tekrar deneyin.",
+    "Invalid Credentials": "Geçersiz kimlik bilgileri.",
+    "User Not Found": "Kullanıcı bulunamadı.",
+    "User Already Exists": "Kullanıcı zaten mevcut.",
+    
+
+    "Mail Not Found": "E-posta adresi bulunamadı.",
+    "Password Reset Link Sent": "Şifre sıfırlama bağlantısı e-postanıza gönderildi.",
+    "Password Reset Link Sent Error": "Şifre sıfırlama bağlantısı gönderilirken bir hata oluştu, lütfen daha sonra tekrar deneyin.",
+    "Reset Link Invalid": "Sıfırlama bağlantısı geçersiz.",
+    "Reset Link Expired": "Sıfırlama bağlantısının süresi dolmuş.",
+    "Password Reset Success": "Şifre başarıyla güncellendi.",
+
+    "Logout Success": "Başarıyla çıkış yapıldı.",
+
+    "Token Missing": "Token eksik, lütfen tekrar giriş yapın.",
+    "Invalid Token": "Geçersiz Token, lütfen tekrar giriş yapın",
+    "Token Expired": "Token süresi doldu, lütfen tekrar giriş yapın.",
+
+    "Internal Server Error": "Sunucu içi hata."
 }
