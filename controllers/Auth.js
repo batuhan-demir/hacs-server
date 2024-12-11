@@ -8,6 +8,24 @@ const { generateToken } = require("../utils/GenerateToken");
 const PasswordResetToken = require("../models/PasswordResetToken");
 
 exports.signup = async (req, res) => {
+
+    /*
+    * @params req.body.name : string
+    * @params req.body.email : string
+    * @params req.body.password : string
+    * @params req.body.role : string
+    * @params req.body.phone : string
+    * @params req.body.address : string
+    * @params req.body.city : string
+    * @params req.body.state : string
+    * @params req.body.country : string
+    * @params req.body.pincode : string
+    * @params req.body.language : string
+    * @params req.body.isVerified : boolean
+    * @params req.body.isBlocked : boolean
+    * @params req.body.isDeleted : boolean
+    * @params req.body.isSuspended : boolean
+    */
     try {
         const existingUser = await User.findOne({ email: req.body.email })
 
@@ -22,7 +40,18 @@ exports.signup = async (req, res) => {
 
         // creating new user
         //TODO dont allow user to create user with admin role
-        const createdUser = new User(req.body)
+        const createdUser = new User({
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password,
+            role: req.body.role,
+            phone: req.body.phone,
+            address: req.body.address,
+            city: req.body.city,
+            state: req.body.state,
+            country: req.body.country,
+            pincode: req.body.pincode,
+        })
         await createdUser.save()
 
         // getting secure user info
@@ -48,6 +77,12 @@ exports.signup = async (req, res) => {
 }
 
 exports.login = async (req, res) => {
+
+    /*
+    * @params req.body.email : string
+    * @params req.body.password : string
+    */
+
     try {
         // checking if user exists or not
         const existingUser = await User.findOne({ email: req.body.email })
@@ -80,17 +115,22 @@ exports.login = async (req, res) => {
 }
 
 exports.verifyOtp = async (req, res) => {
+
+    /*
+    * @params req.body.userID : string
+    * @params req.body.otp : string
+    */
     try {
         // checks if user id is existing in the user collection
-        const isValidUserId = await User.findById(req.body.userID)
+        const isValiduserID = await User.findById(req.body.userID)
 
         // if user id does not exists then returns a 404 response
-        if (!isValidUserId) {
+        if (!isValiduserID) {
             return res.status(404).json({ message: 'User not Found, for which the otp has been generated' })
         }
 
         // checks if otp exists by that user id
-        const isOtpExisting = await Otp.findOne({ user: isValidUserId._id })
+        const isOtpExisting = await Otp.findOne({ user: isValiduserID._id })
 
         // if otp does not exists then returns a 404 response
         if (!isOtpExisting) {
@@ -106,10 +146,12 @@ exports.verifyOtp = async (req, res) => {
         // checks if otp is there and matches the hash value then updates the user verified status to true and returns the updated user
         if (isOtpExisting && (await bcrypt.compare(req.body.otp, isOtpExisting.otp))) {
             await Otp.findByIdAndDelete(isOtpExisting._id)
-            const verifiedUser = await User.findByIdAndUpdate(isValidUserId._id, { isVerified: true }, { new: true })
+            const verifiedUser = await User.findByIdAndUpdate(isValiduserID._id, { isVerified: true }, { new: true })
             return res.status(200).json(sanitizeUser(verifiedUser))
         }
 
+        //TODO add a limit to the number of otp verification attempts
+        //TODO refresh token after otp verification
         // in default case if none of the conidtion matches, then return this response
         return res.status(400).json({ message: 'Otp is invalid or expired' })
 
@@ -121,6 +163,11 @@ exports.verifyOtp = async (req, res) => {
 }
 
 exports.resendOtp = async (req, res) => {
+
+    /*
+    * @params req.body.userID : string
+    */
+
     try {
 
         const existingUser = await User.findById(req.body.userID)
@@ -150,6 +197,11 @@ exports.resendOtp = async (req, res) => {
 }
 
 exports.forgotPassword = async (req, res) => {
+
+    /*
+    * @params req.body.email : string
+    */
+
     let newToken;
     try {
         // checks if user provided email exists or not
@@ -173,16 +225,16 @@ exports.forgotPassword = async (req, res) => {
         await newToken.save()
 
         // sends the password reset link to the user's mail
-        await sendMail(isExistingUser.email, 'Password Reset Link for Your MERN-AUTH-REDUX-TOOLKIT Account', `<p>Dear ${isExistingUser.name},
+        await sendMail(isExistingUser.email, 'Password Reset Link for Your HACS Account', `<p>Dear ${isExistingUser.name},
 
-        We received a request to reset the password for your MERN-AUTH-REDUX-TOOLKIT account. If you initiated this request, please use the following link to reset your password:</p>
+        We received a request to reset the password for your HACS account. If you initiated this request, please use the following link to reset your password:</p>
         
         <p><a href=${process.env.ORIGIN}/reset-password/${isExistingUser._id}/${passwordResetToken} target="_blank">Reset Password</a></p>
         
         <p>This link is valid for a limited time. If you did not request a password reset, please ignore this email. Your account security is important to us.
         
         Thank you,
-        The MERN-AUTH-REDUX-TOOLKIT Team</p>`)
+        The HACS Team</p>`)
 
         res.status(200).json({ message: `Password Reset link sent to ${isExistingUser.email}` })
 
@@ -193,20 +245,27 @@ exports.forgotPassword = async (req, res) => {
 }
 
 exports.resetPassword = async (req, res) => {
+
+    /*
+    * @params req.body.userID : string
+    * @params req.body.token : string
+    * @params req.body.password : string
+    */
+
     try {
 
         // checks if user exists or not
-        const isExistingUser = await User.findById(req.body.userId)
+        const isExistingUser = await User.findById(req.body.userID)
 
         // if user does not exists then returns a 404 response
         if (!isExistingUser) {
             return res.status(404).json({ message: "User does not exists" })
         }
 
-        // fetches the resetPassword token by the userId
+        // fetches the resetPassword token by the userID
         const isResetTokenExisting = await PasswordResetToken.findOne({ user: isExistingUser._id })
 
-        // If token does not exists for that userid, then returns a 404 response
+        // If token does not exists for that userID, then returns a 404 response
         if (!isResetTokenExisting) {
             return res.status(404).json({ message: "Reset Link is Not Valid" })
         }
