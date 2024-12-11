@@ -1,5 +1,6 @@
 require("dotenv").config()
 const express = require('express')
+const i18n = require('i18n')
 const cors = require('cors')
 const morgan = require("morgan")
 const cookieParser = require("cookie-parser")
@@ -7,34 +8,55 @@ const authRoutes = require("./routes/Auth")
 const userRoutes = require("./routes/User")
 const { connectToDB } = require("./database/db")
 
-
-// server init
-const server = express()
+// app init
+const app = express()
 
 // database connection
 connectToDB()
 
 const PORT = process.env.PORT
 
-// middlewares
-server.use(cors({ origin: process.env.ORIGIN, credentials: true, exposedHeaders: ['X-Total-Count'], methods: ['GET', 'POST', 'PATCH', 'DELETE'] }))
-server.use(express.json())
-server.use(cookieParser())
-server.use(morgan("tiny"))
+// i18n configuration
+i18n.configure({
+    locales: ['en', 'tr'],
+    directory: __dirname + '/locales',
+    defaultLocale: 'en',
+    queryParameter: 'lang',
+    autoReload: true,
+    updateFiles: false,
+    cookie: 'locale',
+});
 
-server.options('*', cors({
+// middlewares
+app.use(cors({ origin: process.env.ORIGIN, credentials: true, exposedHeaders: ['X-Total-Count'], methods: ['GET', 'POST', 'PATCH', 'DELETE'] }))
+app.use(express.json())
+app.use(cookieParser())
+app.use(morgan("tiny"))
+app.use(i18n.init);
+
+app.options('*', cors({
     origin: process.env.ORIGIN,
     credentials: true,
 }));
 
-// routeMiddleware
-server.use("/auth", authRoutes)
-server.use("/users", userRoutes)
+app.use((req, res, next) => {
+    let lang = req.query.lang || req.cookies.locale || 'en';
+    if (i18n.getLocales().includes(lang)) {
+        i18n.setLocale(req, lang);
+    } else {
+        i18n.setLocale(req, 'en');
+    }
+    next();
+});
 
-server.get("/", (req, res) => {
-    res.status(200).json({ message: 'running' })
+// routeMiddleware
+app.use("/auth", authRoutes)
+app.use("/users", userRoutes)
+
+app.get("/", (req, res) => {
+    res.status(200).json({ message: req.__("Welcome") })
 })
 
-server.listen(PORT, () => {
-    console.log(`server [STARTED] ~ http://localhost${PORT}`);
+app.listen(PORT, () => {
+    console.log(`server [STARTED] ~ http://localhost:${PORT}`);
 })
