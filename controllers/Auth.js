@@ -303,7 +303,7 @@ exports.resetPassword = async (req, res) => {
     /*
     * @params req.body.userID : string
     * @params req.body.token : string
-    * @params req.body.password : string
+    * @params req.body.newPassword : string
     */
 
     try {
@@ -346,7 +346,8 @@ exports.resetPassword = async (req, res) => {
             await PasswordResetToken.findByIdAndDelete(isResetTokenExisting._id)
 
             // resets the password after hashing it
-            await User.findByIdAndUpdate(isExistingUser._id, { password: await bcrypt.hash(req.body.password, 10) })
+            await User.findByIdAndUpdate(isExistingUser._id,
+                { password: await bcrypt.hash(req.body.newPassword, 10) })
             return res.status(200).json({
                 success: true,
                 data: req.__("Password Reset Successful")
