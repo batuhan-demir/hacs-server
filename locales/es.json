@@ -1,0 +1,32 @@
+{
+    "Some Error Occurred": "Ocurrió un error, por favor inténtelo de nuevo más tarde.",
+    "Some Error Occurred Signup": "Ocurrió un error durante el registro, por favor inténtelo de nuevo más tarde.",
+    "Some Error Occurred Login": "Ocurrió un error al iniciar sesión, por favor inténtelo de nuevo más tarde.",
+    "Some Error Occurred Reset Password": "Ocurrió un error al restablecer la contraseña, por favor inténtelo de nuevo más tarde.",
+
+    "OTP Sent": "El OTP ha sido enviado a tu correo electrónico.",
+    "OTP General Error": "El OTP es inválido o ha expirado.",
+    "OTP Sent Error": "Ocurrió un error al reenviar el OTP, por favor inténtelo de nuevo más tarde.",
+    "OTP Not Found": "OTP no encontrado.",
+    "OTP Expired": "El OTP ha expirado.",
+
+    "User Getting Data Error": "Error al obtener tus detalles, por favor inténtelo de nuevo más tarde.",
+    "Invalid Credentials": "Credenciales inválidas.",
+    "User Not Found": "Usuario no encontrado.",
+    "User Already Exists": "El usuario ya existe.",
+
+    "Mail Not Found": "El correo electrónico proporcionado no existe.",
+    "Password Reset Link Sent": "El enlace para restablecer la contraseña ha sido enviado a tu correo electrónico.",
+    "Password Reset Link Sent Error": "Ocurrió un error al enviar el enlace para restablecer la contraseña, por favor inténtelo de nuevo más tarde.",
+    "Reset Link Invalid": "El enlace de restablecimiento es inválido.",
+    "Reset Link Expired": "El enlace de restablecimiento ha expirado.",
+    "Password Reset Success": "Contraseña actualizada exitosamente.",
+
+    "Logout Success": "Has cerrado sesión correctamente.",
+
+    "Token Missing": "Token faltante, por favor inicia sesión nuevamente.",
+    "Invalid Token": "Token inválido, por favor inicia sesión nuevamente.",
+    "Token Expired": "Token expirado, por favor inicia sesión nuevamente.",
+
+    "Internal Server Error": "Error interno del servidor."
+}
