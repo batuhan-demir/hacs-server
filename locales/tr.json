@@ -26,6 +26,7 @@
     "Password Reset Success": "Şifre başarıyla güncellendi.",
 
     "Logout Success": "Başarıyla çıkış yapıldı.",
+    "Logout Error": "Çıkış yapılırken bir hata oluştu, lütfen daha sonra tekrar deneyin.",
 
     "Token Missing": "Token eksik, lütfen tekrar giriş yapın.",
     "Invalid Token": "Geçersiz Token, lütfen tekrar giriş yapın",

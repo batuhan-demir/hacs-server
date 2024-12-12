@@ -23,6 +23,7 @@
     "Password Reset Success": "Contraseña actualizada exitosamente.",
 
     "Logout Success": "Has cerrado sesión correctamente.",
+    "Logout Error": "Error al cerrar sesión, por favor inténtelo de nuevo más tarde.",
 
     "Token Missing": "Token faltante, por favor inicia sesión nuevamente.",
     "Invalid Token": "Token inválido, por favor inicia sesión nuevamente.",

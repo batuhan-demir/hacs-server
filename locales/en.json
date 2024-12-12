@@ -26,6 +26,7 @@
     "Password Reset Success": "Password updated successfully.",
 
     "Logout Success": "Logged out successfully.",
+    "Logout Error": "Error occured while logging out, please try again later.",
 
     "Token Missing": "Token missing, please login again.",
     "Invalid Token": "Invalid Token, please login again",
