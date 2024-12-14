@@ -1,0 +1,33 @@
+{
+    "Some Error Occurred": "Wystąpił błąd, spróbuj ponownie później.",
+    "Some Error Occurred Signup": "Wystąpił błąd podczas rejestracji, spróbuj ponownie później.",
+    "Some Error Occurred Login": "Wystąpił błąd podczas logowania, spróbuj ponownie później.",
+    "Some Error Occurred Reset Password": "Wystąpił błąd podczas resetowania hasła, spróbuj ponownie później.",
+    
+    "OTP Sent": "Kod OTP został wysłany na Twój e-mail.",
+    "OTP General Error": "Kod OTP jest nieprawidłowy lub wygasł.",
+    "OTP Sent Error": "Wystąpił błąd podczas ponownego wysyłania kodu OTP, spróbuj ponownie później.",
+    "OTP Not Found": "Kod OTP nie został znaleziony.",
+    "OTP Expired": "Kod OTP wygasł.",
+    
+    "User Getting Data Error": "Wystąpił błąd podczas pobierania Twoich danych, spróbuj ponownie później.",
+    "Invalid Credentials": "Nieprawidłowe dane uwierzytelniające.",
+    "User Not Found": "Użytkownik nie został znaleziony.",
+    "User Already Exists": "Użytkownik już istnieje.",
+    
+    "Mail Not Found": "Podany e-mail nie istnieje.",
+    "Password Reset Link Sent": "Link do resetowania hasła został wysłany na Twój e-mail.",
+    "Password Reset Link Sent Error": "Wystąpił błąd podczas wysyłania linku do resetowania hasła, spróbuj ponownie później.",
+    "Reset Link Invalid": "Link resetowania hasła jest nieprawidłowy.",
+    "Reset Link Expired": "Link resetowania hasła wygasł.",
+    "Password Reset Success": "Hasło zostało pomyślnie zaktualizowane.",
+    
+    "Logout Success": "Pomyślnie wylogowano.",
+    "Logout Error": "Wystąpił błąd podczas wylogowywania, spróbuj ponownie później.",
+    
+    "Token Missing": "Brak tokenu, zaloguj się ponownie.",
+    "Invalid Token": "Nieprawidłowy token, zaloguj się ponownie.",
+    "Token Expired": "Token wygasł, zaloguj się ponownie.",
+    
+    "Internal Server Error": "Wewnętrzny błąd serwera."
+}

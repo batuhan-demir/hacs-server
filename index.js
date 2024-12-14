@@ -18,7 +18,7 @@ const PORT = process.env.PORT
 
 // i18n configuration
 i18n.configure({
-    locales: ['en', 'tr', 'es'],
+    locales: ['en', 'tr', 'es', 'pl'],
     directory: __dirname + '/locales',
     defaultLocale: 'en',
     queryParameter: 'lang',
