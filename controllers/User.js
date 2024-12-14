@@ -1,5 +1,24 @@
 const User = require("../models/User")
 
+exports.getMe = async (req, res) => {
+    try {
+        const result = await User.findById(req.user._id, { password: false })
+        res.status(200).json({
+            success: true,
+            data: {
+                user: result
+            }
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: req.__("User Getting Data Error")
+        })
+    }
+}
+
 exports.getById = async (req, res) => {
     try {
         const { id } = req.params
@@ -13,7 +32,7 @@ exports.getById = async (req, res) => {
         console.log(error);
         res.status(500).json({
             success: false,
-            message: req.__("User Getting Details Error")
+            message: req.__("User Getting Data Error")
         })
     }
 }
@@ -31,7 +50,7 @@ exports.updateById = async (req, res) => {
         console.log(error);
         res.status(500).json({
             success: false,
-            message: req.__("User Getting Details Error")
+            message: req.__("User Getting Data Error")
         })
     }
 }
