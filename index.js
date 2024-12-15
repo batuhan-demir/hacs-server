@@ -28,7 +28,7 @@ i18n.configure({
 });
 
 // middlewares
-app.use(cors({ origin: process.env.ORIGIN, credentials: true, exposedHeaders: ['X-Total-Count'], methods: ['GET', 'POST', 'PATCH', 'DELETE'] }))
+app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 app.use(morgan("tiny"))
