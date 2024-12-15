@@ -34,10 +34,11 @@ app.use(cookieParser())
 app.use(morgan("tiny"))
 app.use(i18n.init);
 
+/*
 app.options('*', cors({
     origin: process.env.ORIGIN,
     credentials: true,
-}));
+}));*/
 
 app.use((req, res, next) => {
     let lang = req.query.lang || req.cookies.locale || 'en';
