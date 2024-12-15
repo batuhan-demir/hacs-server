@@ -4,6 +4,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -11,8 +12,8 @@ const io = new Server(server);
 
 // MongoDB Bağlantısı
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB Bağlantısı Başarılı'))
-    .catch(err => console.error('MongoDB Bağlantı Hatası:', err));
+    .then(() => console.log('MongoDB connection successful'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
 const User = require("./models/User");
 
@@ -31,7 +32,11 @@ const Message = mongoose.model('Message', messageSchema);
 
 let users = {};
 
-app.use(express.static(__dirname));
+app.use(express.static(__dirname + "/public"));
+
+app.get('/chat/:id', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'chat' , 'index.html'));
+});
 
 // Middleware: Token doğrulama
 io.use(async (socket, next) => {
@@ -65,10 +70,11 @@ io.use(async (socket, next) => {
 io.on('connection', async (socket) => {
     const { id: userID, name, role } = socket.user;
 
-    console.log(`${name} (${userID}) bağlandı. ID: ${socket.id}`);
+    console.log(`${name} (${userID}) connected. ID: ${socket.id}`);
 
     users[userID] = {
         socket: socket.id,
+        userID,
         name,
         role
     };
@@ -79,20 +85,12 @@ io.on('connection', async (socket) => {
         name,
     });
 
-    /*  // Teslim edilmemiş mesajları gönder
-      const undeliveredMessages = await Message.find({ recipient: userID, delivered: false });
-      undeliveredMessages.forEach(async (msg) => {
-          socket.emit('private message', { id: msg._id, from: msg.sender, message: msg.message });
-          msg.delivered = true;
-          await msg.save();
-      });
-  */
-    io.emit('user list', Object.keys(users));
+    io.emit('user list', Object.values(users));
 
     // Mesaj geçmişini yükleme
     socket.on('load messages', async (recipientID) => {
         if (!recipientID) {
-            return socket.emit('load error', 'Geçersiz alıcı ID');
+            return socket.emit('load error', 'Invalid recipient ID');
         }
 
         try {
@@ -108,8 +106,8 @@ io.on('connection', async (socket) => {
 
             socket.emit('message history', messages);
         } catch (err) {
-            console.error('Mesaj geçmişi yüklenirken hata:', err);
-            socket.emit('load error', 'Mesaj geçmişi yüklenemedi');
+            console.error('Error while loading message history:', err);
+            socket.emit('load error', 'Failed to load message history');
         }
     });
 
@@ -165,11 +163,11 @@ io.on('connection', async (socket) => {
     // Kullanıcı ayrıldığında
     socket.on('disconnect', () => {
         delete users[userID];
-        io.emit('user list', Object.keys(users));
+        io.emit('user list', Object.values(users));
     });
 });
 
 // Sunucuyu başlat
 server.listen(3000, () => {
-    console.log('Sunucu 3000 portunda çalışıyor');
+    console.log('Server running on port 3000');
 });

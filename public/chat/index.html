@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Özel Mesajlaşma</title>
+    <title>Private Messaging</title>
     <link rel="stylesheet" href="style.css">
     <script src="/socket.io/socket.io.js"></script>
 </head>
@@ -13,16 +13,24 @@
     <div class="chat-container">
         <aside class="sidebar">
             <h2 id="username">Active User</h2>
+
+            <div>
+                <h3>Active Users</h3>
+                <ul id="user-list"></ul>
+            </div>
+
+            <!-- 
             <form id="register-form">
-                <!-- <input id="username" placeholder="Kullanıcı adı" required /> -->
-                <!-- <button>Kaydol</button> -->
+                <input id="username" placeholder="Username" required /> 
+                <button>Register</button>
             </form>
             <h3>Receiver</h3>
             <input id="private-to" placeholder="To (user id)" value="6758bcc93c7a8502e73803ce" required />
+            -->
         </aside>
         <main class="chat">
             <header class="chat-header">
-                <h2>Private Chat</h2>
+                <h2>Chat</h2>
             </header>
             <ul id="messages" class="chat-messages"></ul>
             <footer class="chat-footer">
@@ -40,34 +48,43 @@
             }
         });
 
-        let userID;
-
-        // Kullanıcı kaydı
-        document.getElementById('register-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            userID = document.getElementById('username').value;
-            socket.emit('register', userID);
-        });
+        let userID, recipientID;
 
         socket.on('connect_error', (err) => {
             if (err.message != "xhr poll error")
                 alert(err.message)
         });
 
-        // Kullanıcı kaydı başarılı
+        // User registration successful
         socket.on('authenticated', ({ name, userID: _userID }) => {
             console.log(name, _userID);
             userID = _userID;
             document.getElementById('username').textContent += ": " + name;
 
-            const recipientID = document.getElementById('private-to').value;
+            recipientID = document.location.pathname.split('/').pop() || "6758bcc93c7a8502e73803ce";
+            // document.getElementById('private-to').value = recipientID;
             socket.emit('load messages', recipientID);
         });
 
-        // Mesaj geçmişini alma
+        socket.on('user list', (users) => {
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = ''; // Clear the list
+
+            users.forEach((user) => {
+                const item = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `/chat/${user.userID}`;
+                a.style.color = 'white';
+                a.textContent = user.name;
+                item.appendChild(a);
+                userList.appendChild(item);
+            });
+        });
+
+        // Fetch message history
         socket.on('message history', (messages) => {
             const messagesList = document.getElementById('messages');
-            messagesList.innerHTML = ''; // Eski mesajları temizle
+            messagesList.innerHTML = ''; // Clear old messages
 
             messages.forEach((msg) => {
                 const item = document.createElement('li');
@@ -81,16 +98,16 @@
                 messagesList.appendChild(item);
             });
 
-            // Listeyi en alta kaydır
+            // Scroll to the bottom of the list
             messagesList.scrollTop = messagesList.scrollHeight;
         });
 
 
-        // Gelen mesajları dinleme
+        // Listen for incoming messages
         socket.on('private message', ({ id, senderID, senderName, message, delivered }) => {
             const messagesList = document.getElementById('messages');
 
-            // Mesajın tekrar eklenmesini önlemek için kontrol
+            // Prevent duplicate message insertion
             if (!document.querySelector(`[data-id="${id}"]`)) {
                 const item = document.createElement('li');
                 const sent = senderID === userID;
@@ -101,10 +118,10 @@
                 item.setAttribute('data-id', id);
                 messagesList.appendChild(item);
 
-                // Mesaj listesi otomatik olarak en alta kaydırılır
+                // Scroll to the bottom of the list
                 messagesList.scrollTop = messagesList.scrollHeight;
 
-                // Eğer mesajı gönderen kendimiz değilsek ve focus varsa okundu bilgisi gönder
+                // If the sender is not the current user and the page is focused, send read acknowledgment
                 if (senderID !== userID && document.hasFocus()) {
                     socket.emit('message read', id);
                 }
@@ -115,7 +132,7 @@
             alert(message);
         });
 
-        // Kullanıcı focus olduğunda okunmamış mesajları kontrol et
+        // Check unread messages when the user focuses on the page
         window.addEventListener('focus', () => {
             const unreadMessages = document.querySelectorAll('li.received:not([data-read])');
             unreadMessages.forEach((item) => {
@@ -123,9 +140,9 @@
                 const from = item.textContent.split(':')[0];
 
                 if (from !== userID) {
-                    // Görüldü bilgisi gönder
+                    // Send read acknowledgment
                     socket.emit('message read', id);
-                    // Mesajın tekrar gönderilmemesi için işaretle
+                    // Mark message as read to prevent duplicate events
                     item.setAttribute('data-read', 'true');
                 }
             });
@@ -138,25 +155,25 @@
             document.getElementById('username').value = token;
         };*/
 
-        // Gönderilen mesajın "okundu" bilgisi
+        // Handle read receipts for sent messages
         socket.on('message read', ({ id }) => {
             const item = document.querySelector(`[data-id="${id}"]`);
             if (item) {
-                // item.textContent += ' (Okundu)';
+                // item.textContent += ' (Read)';
                 item.classList.add('seen');
             }
         });
 
-        // Mesaj gönderme
+        // Send a message
         document.getElementById('private-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const to = document.getElementById('private-to').value;
+            const to = recipientID;
             const message = document.getElementById('private-message').value;
 
-            // Mesajı sunucuya gönder
+            // Send the message to the server
             socket.emit('private message', { to, message });
 
-            // Input kutusunu temizle
+            // Clear the input field
             document.getElementById('private-message').value = '';
         });
     </script>
