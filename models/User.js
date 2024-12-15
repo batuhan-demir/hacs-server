@@ -57,6 +57,6 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     }
-})
+}, { timestamps: true, discriminatorKey: "role" })
 
 module.exports = mongoose.model("User", userSchema)
