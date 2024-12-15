@@ -40,6 +40,10 @@ body {
     justify-content: space-between;
 }
 
+#private-to{
+    margin-top: -35vh;
+}
+
 @media (min-width: 768px) {
     .sidebar {
         width: 25%;
@@ -96,7 +100,6 @@ body {
     background-color: #ecf0f1;
     list-style: none;
     margin: 0;
-    padding: 0;
 }
 
 .chat-messages li {
@@ -107,7 +110,21 @@ body {
 }
 
 .chat-messages li.sent {
+    background-color: #626262;
+    color: #ffffff;
+    align-self: flex-end;
+    text-align: right;
+}
+
+.chat-messages li.delivered {
     background-color: #3498db;
+    color: #ffffff;
+    align-self: flex-end;
+    text-align: right;
+}
+
+.chat-messages li.seen {
+    background-color: #2ecc71;
     color: #ffffff;
     align-self: flex-end;
     text-align: right;

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,72 +8,121 @@
     <link rel="stylesheet" href="style.css">
     <script src="/socket.io/socket.io.js"></script>
 </head>
+
 <body>
     <div class="chat-container">
         <aside class="sidebar">
-            <h2>Kullanıcı</h2>
+            <h2 id="username">Active User</h2>
             <form id="register-form">
-                <input id="username" placeholder="Kullanıcı adı" required />
-                <button>Kaydol</button>
+                <!-- <input id="username" placeholder="Kullanıcı adı" required /> -->
+                <!-- <button>Kaydol</button> -->
             </form>
-            <h3>Alıcı</h3>
-            <input id="private-to" placeholder="Kime (kullanıcı adı)" required />
+            <h3>Receiver</h3>
+            <input id="private-to" placeholder="To (user id)" value="6758bcc93c7a8502e73803ce" required />
         </aside>
         <main class="chat">
             <header class="chat-header">
-                <h2>Mesajlaşma</h2>
+                <h2>Private Chat</h2>
             </header>
             <ul id="messages" class="chat-messages"></ul>
             <footer class="chat-footer">
                 <form id="private-form" class="message-form">
-                    <input id="private-message" class="message-input" placeholder="Mesajınızı yazın..." required />
-                    <button class="send-button">Gönder</button>
+                    <input id="private-message" class="message-input" placeholder="Your message here.." required />
+                    <button class="send-button">Send</button>
                 </form>
             </footer>
         </main>
     </div>
     <script>
-        const socket = io();
-    
-        let currentUsername;
-    
+        const socket = io({
+            auth: {
+                token: document.cookie?.split('token=')[1]?.split(';')[0]
+            }
+        });
+
+        let userID;
+
         // Kullanıcı kaydı
         document.getElementById('register-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            currentUsername = document.getElementById('username').value;
-            socket.emit('register', currentUsername);
+            userID = document.getElementById('username').value;
+            socket.emit('register', userID);
         });
-    
-        // Gelen mesajları dinleme
-        socket.on('private message', ({ id, from, message }) => {
+
+        socket.on('connect_error', (err) => {
+            if (err.message != "xhr poll error")
+                alert(err.message)
+        });
+
+        // Kullanıcı kaydı başarılı
+        socket.on('authenticated', ({ name, userID: _userID }) => {
+            console.log(name, _userID);
+            userID = _userID;
+            document.getElementById('username').textContent += ": " + name;
+
+            const recipientID = document.getElementById('private-to').value;
+            socket.emit('load messages', recipientID);
+        });
+
+        // Mesaj geçmişini alma
+        socket.on('message history', (messages) => {
             const messagesList = document.getElementById('messages');
-    
+            messagesList.innerHTML = ''; // Eski mesajları temizle
+
+            messages.forEach((msg) => {
+                const item = document.createElement('li');
+                item.classList.add(msg.sender._id === userID ? 'sent' : 'received');
+                item.classList.add(msg.delivered ? 'delivered' : 'sent');
+                if (msg.read)
+                    item.classList.add('seen');
+
+                item.textContent = `${/*msg.sender._id === userID ? 'You' : */msg.sender.name}: ${msg.message}`;
+                item.setAttribute('data-id', msg._id);
+                messagesList.appendChild(item);
+            });
+
+            // Listeyi en alta kaydır
+            messagesList.scrollTop = messagesList.scrollHeight;
+        });
+
+
+        // Gelen mesajları dinleme
+        socket.on('private message', ({ id, senderID, senderName, message, delivered }) => {
+            const messagesList = document.getElementById('messages');
+
             // Mesajın tekrar eklenmesini önlemek için kontrol
             if (!document.querySelector(`[data-id="${id}"]`)) {
                 const item = document.createElement('li');
-                item.classList.add(from === currentUsername ? 'sent' : 'received');
-                item.textContent = `${from}: ${message}`;
+                const sent = senderID === userID;
+
+                item.classList.add(sent ? 'sent' : 'received');
+                item.classList.add(delivered ? 'delivered' : 'sent');
+                item.textContent = `${senderName}: ${message}`;
                 item.setAttribute('data-id', id);
                 messagesList.appendChild(item);
-    
+
                 // Mesaj listesi otomatik olarak en alta kaydırılır
                 messagesList.scrollTop = messagesList.scrollHeight;
-    
+
                 // Eğer mesajı gönderen kendimiz değilsek ve focus varsa okundu bilgisi gönder
-                if (from !== currentUsername && document.hasFocus()) {
+                if (senderID !== userID && document.hasFocus()) {
                     socket.emit('message read', id);
                 }
             }
         });
-    
+
+        socket.on('auth error', (message) => {
+            alert(message);
+        });
+
         // Kullanıcı focus olduğunda okunmamış mesajları kontrol et
         window.addEventListener('focus', () => {
             const unreadMessages = document.querySelectorAll('li.received:not([data-read])');
             unreadMessages.forEach((item) => {
                 const id = item.getAttribute('data-id');
                 const from = item.textContent.split(':')[0];
-    
-                if (from !== currentUsername) {
+
+                if (from !== userID) {
                     // Görüldü bilgisi gönder
                     socket.emit('message read', id);
                     // Mesajın tekrar gönderilmemesi için işaretle
@@ -80,29 +130,37 @@
                 }
             });
         });
-        
+
+        /*window.onload = function () {
+            socket.emit('register', document.cookie.split('=')[2]);
+
+            const token = document.cookie.split('=')[1].split(';')[0]
+            document.getElementById('username').value = token;
+        };*/
+
         // Gönderilen mesajın "okundu" bilgisi
         socket.on('message read', ({ id }) => {
             const item = document.querySelector(`[data-id="${id}"]`);
-            if (item && !item.textContent.includes('(Okundu)')) {
+            if (item) {
                 // item.textContent += ' (Okundu)';
-                item.style.backgroundColor = '#00ff3c';
+                item.classList.add('seen');
             }
         });
-    
+
         // Mesaj gönderme
         document.getElementById('private-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const to = document.getElementById('private-to').value;
             const message = document.getElementById('private-message').value;
-    
+
             // Mesajı sunucuya gönder
             socket.emit('private message', { to, message });
-    
+
             // Input kutusunu temizle
             document.getElementById('private-message').value = '';
         });
     </script>
-    
+
 </body>
+
 </html>
