@@ -1,15 +1,24 @@
 require("dotenv").config()
 const express = require('express')
+const http = require('http');
+const path = require('path');
+
 const i18n = require('i18n')
 const cors = require('cors')
 const morgan = require("morgan")
+
 const cookieParser = require("cookie-parser")
+
 const authRoutes = require("./routes/Auth")
 const userRoutes = require("./routes/User")
 const { connectToDB } = require("./database/db")
 
 // app init
 const app = express()
+global.server = http.createServer(app);
+
+// realtime comminication
+require('./utils/chat');
 
 // database connection
 connectToDB()
@@ -51,6 +60,13 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(express.static(__dirname + '/public'));
+
+app.get('/chat/:id', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'chat', 'index.html'));
+});
+
+
 // routeMiddleware
 app.use("/auth", authRoutes)
 app.use("/users", userRoutes)
@@ -59,6 +75,6 @@ app.get("/", (req, res) => {
     res.status(200).json({ message: req.__("Welcome") })
 })
 
-app.listen(PORT, () => {
+global.server.listen(PORT, () => {
     console.log(`server [STARTED] ~ http://localhost:${PORT}`);
 })
