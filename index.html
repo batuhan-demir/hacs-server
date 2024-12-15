@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Özel Mesajlaşma</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <aside class="sidebar">
+            <h2>Kullanıcı</h2>
+            <form id="register-form">
+                <input id="username" placeholder="Kullanıcı adı" required />
+                <button>Kaydol</button>
+            </form>
+            <h3>Alıcı</h3>
+            <input id="private-to" placeholder="Kime (kullanıcı adı)" required />
+        </aside>
+        <main class="chat">
+            <header class="chat-header">
+                <h2>Mesajlaşma</h2>
+            </header>
+            <ul id="messages" class="chat-messages"></ul>
+            <footer class="chat-footer">
+                <form id="private-form" class="message-form">
+                    <input id="private-message" class="message-input" placeholder="Mesajınızı yazın..." required />
+                    <button class="send-button">Gönder</button>
+                </form>
+            </footer>
+        </main>
+    </div>
+    <script>
+        const socket = io();
+    
+        let currentUsername;
+    
+        // Kullanıcı kaydı
+        document.getElementById('register-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            currentUsername = document.getElementById('username').value;
+            socket.emit('register', currentUsername);
+        });
+    
+        // Gelen mesajları dinleme
+        socket.on('private message', ({ id, from, message }) => {
+            const messagesList = document.getElementById('messages');
+    
+            // Mesajın tekrar eklenmesini önlemek için kontrol
+            if (!document.querySelector(`[data-id="${id}"]`)) {
+                const item = document.createElement('li');
+                item.classList.add(from === currentUsername ? 'sent' : 'received');
+                item.textContent = `${from}: ${message}`;
+                item.setAttribute('data-id', id);
+                messagesList.appendChild(item);
+    
+                // Mesaj listesi otomatik olarak en alta kaydırılır
+                messagesList.scrollTop = messagesList.scrollHeight;
+    
+                // Eğer mesajı gönderen kendimiz değilsek ve focus varsa okundu bilgisi gönder
+                if (from !== currentUsername && document.hasFocus()) {
+                    socket.emit('message read', id);
+                }
+            }
+        });
+    
+        // Kullanıcı focus olduğunda okunmamış mesajları kontrol et
+        window.addEventListener('focus', () => {
+            const unreadMessages = document.querySelectorAll('li.received:not([data-read])');
+            unreadMessages.forEach((item) => {
+                const id = item.getAttribute('data-id');
+                const from = item.textContent.split(':')[0];
+    
+                if (from !== currentUsername) {
+                    // Görüldü bilgisi gönder
+                    socket.emit('message read', id);
+                    // Mesajın tekrar gönderilmemesi için işaretle
+                    item.setAttribute('data-read', 'true');
+                }
+            });
+        });
+        
+        // Gönderilen mesajın "okundu" bilgisi
+        socket.on('message read', ({ id }) => {
+            const item = document.querySelector(`[data-id="${id}"]`);
+            if (item && !item.textContent.includes('(Okundu)')) {
+                // item.textContent += ' (Okundu)';
+                item.style.backgroundColor = '#00ff3c';
+            }
+        });
+    
+        // Mesaj gönderme
+        document.getElementById('private-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const to = document.getElementById('private-to').value;
+            const message = document.getElementById('private-message').value;
+    
+            // Mesajı sunucuya gönder
+            socket.emit('private message', { to, message });
+    
+            // Input kutusunu temizle
+            document.getElementById('private-message').value = '';
+        });
+    </script>
+    
+</body>
+</html>
