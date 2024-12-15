@@ -44,6 +44,7 @@ app.use((req, res, next) => {
     let lang = req.query.lang || req.cookies.locale || 'en';
     if (i18n.getLocales().includes(lang)) {
         i18n.setLocale(req, lang);
+        res.cookie('locale', lang);
     } else {
         i18n.setLocale(req, 'en');
     }
