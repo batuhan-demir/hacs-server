@@ -1,7 +1,7 @@
 {
   "name": "hacs-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Server Component For Humanatarian Aid Coordination System",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,7 +9,7 @@
     "seed": "node seed/seed.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Batuhan Demir and İsmail Kervankıran (https://github.com/batuhan-demir/hacs-server)",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
