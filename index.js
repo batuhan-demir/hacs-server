@@ -11,6 +11,8 @@ const cookieParser = require("cookie-parser")
 
 const authRoutes = require("./routes/Auth")
 const userRoutes = require("./routes/User")
+const governmentVolunteerRoutes = require('./routes/GovernmentVolunteer');
+
 const { connectToDB } = require("./database/db")
 
 // app init
@@ -70,6 +72,8 @@ app.get('/chat/:id', (req, res) => {
 // routeMiddleware
 app.use("/auth", authRoutes)
 app.use("/users", userRoutes)
+
+app.use('/gv', governmentVolunteerRoutes);
 
 app.get("/", (req, res) => {
     res.status(200).json({ message: req.__("Welcome") })
