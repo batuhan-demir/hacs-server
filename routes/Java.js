@@ -36,7 +36,7 @@ const redirect = async (req, res, next) => {
         console.error(err);
         res.status(500).send({
             success: false,
-            message: req.__("Government Server Error")
+            message: req.__("Java Server Error")
         });
     }
 }

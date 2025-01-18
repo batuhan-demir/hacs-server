@@ -34,5 +34,7 @@
     "Invalid Token": "Geçersiz Token, lütfen tekrar giriş yapın",
     "Token Expired": "Token süresi doldu, lütfen tekrar giriş yapın.",
 
-    "Internal Server Error": "Sunucu içi hata."
+    "Internal Server Error": "Sunucu içi hata.",
+    "Java Server Error": "Java sunucu hatası."
+
 }
