@@ -79,6 +79,13 @@ app.get("/", (req, res) => {
     res.status(200).json({ message: req.__("Welcome") })
 })
 
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: req.__("Not Found")
+    })
+})
+
 global.server.listen(PORT, () => {
     console.log(`server [STARTED] ~ http://localhost:${PORT}`);
 })
