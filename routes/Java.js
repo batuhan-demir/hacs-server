@@ -10,7 +10,9 @@ const redirect = async (req, res, next) => {
 
         // Add query parameters
         url += req.url.includes("?") ? "&" : "?";
-        url += "userID=" + req.user._id + "&userRole=" + req.user.role;
+        url += "userID=" + req.user._id +
+            "&userRole=" + req.user.role +
+            "&isAdmin" + req.user.isAdmin;
 
         const _req = await fetch(url, {
             method: req.method,
