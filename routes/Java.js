@@ -46,5 +46,10 @@ const redirect = async (req, res, next) => {
 
 router.get("*", verifyToken, redirect);
 router.post("*", verifyToken, redirect);
+router.put("*", verifyToken, redirect);
+router.delete("*", verifyToken, redirect);
+router.patch("*", verifyToken, redirect);
+router.options("*", verifyToken, redirect);
+router.head("*", verifyToken, redirect);
 
 module.exports = router
