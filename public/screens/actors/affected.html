@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affected Individual - Aid Request</title>
+
+    <!-- Enlace al archivo de estilos CSS -->
+    <link rel="stylesheet" href="../../css/actorScreen.css">
+
+    <!-- Incluir Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!-- Agregar el script de Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <style>
+        /* Aquí solo añadimos un estilo temporal para el mapa */
+        #map {
+            height: 400px;
+            width: 100%;
+            display: none; /* Mapa oculto por defecto */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="dropdown">
+            <span style="color: white; cursor: pointer;">Menu</span>
+            <div class="dropdown-content">
+                <a href="#" onclick="logout()">Log-out</a>
+                <a href="#" onclick="showHistoryPopup()">View History</a>
+                <a href="#" onclick="openChat()">Chat</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <h3>Request Aid</h3>
+        
+        <div class="buttons-container">
+            <button onclick="showHelpPopup()">I Want Help</button>
+            <button onclick="showLocationPopup()">Select Location</button>
+            <button onclick="sendRequest()">Send Request</button>
+        </div>
+
+        <!-- Mapa para seleccionar ubicación -->
+        <div id="map"></div>
+    </div>
+
+    <!-- Ventana de selección de ayuda -->
+    <div id="helpPopup" class="popup">
+        <div class="popup-header">Select Help Type</div>
+        <label for="helpTypeSelect">Help Type:</label>
+        <select id="helpTypeSelect">
+            <option value="food">Food</option>
+            <option value="shelter">Shelter</option>
+            <option value="medical">Medical</option>
+        </select>
+        <button onclick="submitHelp()">Submit</button>
+        <button class="close-button" onclick="closePopup('helpPopup')">Close</button>
+    </div>
+
+    <!-- Ventana de historial -->
+    <div id="historyPopup" class="popup">
+        <div class="popup-header">View History</div>
+        <label>Donation type:</label>
+        <select id="historyTypeSelect" onchange="updateHistoryTable()">
+            <option value="funds">Funds</option>
+            <option value="goods">Goods</option>
+        </select>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Donor</th>
+                    <th>Receiver</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically populated -->
+            </tbody>
+        </table>
+        <button class="close-button" onclick="closePopup('historyPopup')">Close</button>
+    </div>
+
+    <!-- Popup de solicitud -->
+    <div id="requestPopup" class="popup">
+        <div class="popup-header">Your Request</div>
+        <p><strong>Help Type:</strong> <span id="selectedHelpType"></span></p>
+        <p><strong>Location:</strong> <span id="selectedLocation"></span></p>
+        <button class="close-button" onclick="closePopup('requestPopup')">Close</button>
+    </div>
+
+    <script>
+        var userMarker;
+        var map;
+        var selectedLatLng;
+        var helpType;
+
+        function initMap() {
+            // Crear el mapa
+            map = L.map('map').setView([51.505, -0.09], 13); // Default to a position in London
+
+            // Cargar los tiles de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Intentar obtener la ubicación actual del usuario
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lon = position.coords.longitude;
+                    
+                    // Centrar el mapa en la ubicación del usuario
+                    map.setView([lat, lon], 13);
+
+                    // Colocar un marcador en la ubicación actual
+                    if (userMarker) {
+                        map.removeLayer(userMarker); // Remover marcador anterior si ya existe
+                    }
+                    userMarker = L.marker([lat, lon]).addTo(map);
+                    userMarker.bindPopup("You are here").openPopup();
+                }, function() {
+                    alert("Geolocation failed. Please enable location services.");
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+
+            // Permitir seleccionar una ubicación
+            map.on('click', function(e) {
+                selectedLatLng = e.latlng;
+                if (userMarker) {
+                    map.removeLayer(userMarker); // Eliminar marcador anterior
+                }
+                userMarker = L.marker(selectedLatLng).addTo(map);
+                userMarker.bindPopup("Selected location: " + selectedLatLng.lat.toFixed(5) + ", " + selectedLatLng.lng.toFixed(5)).openPopup();
+            });
+        }
+
+        function showHelpPopup() {
+            document.getElementById('helpPopup').classList.add('visible');
+        }
+
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('visible');
+        }
+
+        function submitHelp() {
+            helpType = document.getElementById('helpTypeSelect').value;
+            closePopup('helpPopup');
+        }
+
+        function showLocationPopup() {
+            // Muestra el mapa para seleccionar la ubicación
+            document.getElementById('map').style.display = 'block';
+            initMap();  // Inicializa el mapa
+        }
+
+        function sendRequest() {
+            if (!selectedLatLng || !helpType) {
+                alert('Please select a location and a help type before sending the request.');
+                return;
+            }
+
+            // Mostrar el popup con la solicitud y la ubicación
+            document.getElementById('selectedHelpType').textContent = helpType;
+            document.getElementById('selectedLocation').textContent = `Lat: ${selectedLatLng.lat.toFixed(5)}, Lng: ${selectedLatLng.lng.toFixed(5)}`;
+            document.getElementById('requestPopup').classList.add('visible');
+        }
+
+        function logout() {
+            alert('Logging out...');
+            setTimeout(function() {
+                window.location.href = "../index.html";  // Ruta absoluta
+            }, 3000);
+        }
+
+        function openChat() {
+            alert('Opening chat...');
+            
+        }
+
+        // Inicializa el mapa solo cuando se hace clic en "Select Location"
+    </script>
+</body>
+</html>

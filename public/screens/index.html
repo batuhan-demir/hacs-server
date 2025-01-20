@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACS - Humanitarian Aid Coordination System</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 18px;
+            color: #555;
+        }
+
+        /* Estilo de la lista desplegable */
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #007BFF;
+        }
+
+        /* Contenedor del mensaje */
+        #message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #28a745;
+            display: none; /* Oculto por defecto */
+        }
+
+        /* Estilo del contenedor */
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .info-text {
+            font-size: 16px;
+            color: #777;
+            margin-top: 10px;
+        }
+
+        .info-text a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .info-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Humanitarian Aid Coordination System</h1>
+        <label for="options">Select an option:</label>
+        <select id="options" onchange="navigate()">
+            <option value="">--Select--</option>
+            <option value="login.html">Login Page</option>
+            <option value="register.html">Register Page</option>
+        </select>
+
+        <!-- Mensaje de confirmación -->
+        <div id="message">Redirecting to the selected page</div>
+
+        <!-- Texto adicional para los usuarios -->
+        <div class="info-text">
+            Need help? <a href="#">Click here</a> to contact support.
+        </div>
+    </div>
+
+    <script>
+        // Función para redirigir según la selección
+        function navigate() {
+            const selectedOption = document.getElementById('options').value;
+            
+            if (selectedOption) {
+                // Mostrar mensaje de confirmación
+                document.getElementById('message').style.display = 'block';
+                
+                // Redirigir después de 2 segundos
+                setTimeout(() => {
+                    window.location.href = selectedOption;
+                }, 2000);
+            } else {
+                // Ocultar mensaje si no se selecciona una opción
+                document.getElementById('message').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

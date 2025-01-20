@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government Representative Management</title>
+    <link rel="stylesheet" href="../../css/actorScreen.css"> <!-- Ruta del archivo CSS -->
+</head>
+<body>
+    <div class="header">
+        <div class="dropdown">
+            <span style="color: white; cursor: pointer;">Menu</span>
+            <div class="dropdown-content">
+                <a href="#" onclick="logout()">Log-out</a>
+                <a href="#" onclick="showHistoryPopup()">View History</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div>
+            <h3>Write Your Proposal Activity for the People</h3>
+            <textarea id="proposalField" placeholder="Describe your activity here..." style="width: 80%; height: 100px;"></textarea>
+            <br>
+            <button onclick="logProposal()">Log Proposal</button>
+        </div>
+    </div>
+
+    <div class="buttons-container">
+        <button onclick="showManagePublicResourcesPopup()">Manage Public Resources</button>
+    </div>
+
+    <div id="managePublicResourcesPopup" class="popup">
+        <div class="popup-header">Manage Public Resources</div>
+        <label>Adjust the money to send (max: 500):</label>
+        <input type="number" id="moneyAdjustField" min="1" max="500" step="1"> €
+        <br>
+        <label>Affected individual to send the money:</label>
+        <select id="publicResourceAffectedSelect">
+            <option value="affected1">Affected Individual 1</option>
+            <option value="affected2">Affected Individual 2</option>
+        </select>
+        <br>
+        <button onclick="sendPublicResources()">Send</button>
+        <button class="close-button" onclick="closePopup('managePublicResourcesPopup')">Close</button>
+    </div>
+
+    <div id="historyPopup" class="popup">
+        <div class="popup-header">View History</div>
+        <label>Donation type:</label>
+        <select id="historyTypeSelect" onchange="updateHistoryTable()">
+            <option value="funds">Funds</option>
+            <option value="goods">Goods</option>
+        </select>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Donor</th>
+                    <th>Receiver</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically populated -->
+            </tbody>
+        </table>
+        <button class="close-button" onclick="closePopup('historyPopup')">Close</button>
+    </div>
+
+    <script>
+        function logProposal() {
+            const proposal = document.getElementById('proposalField').value;
+            if (proposal.trim() === '') {
+                alert('Please write a proposal before logging.');
+                return;
+            }
+            alert(`Proposal logged: ${proposal}`);
+            document.getElementById('proposalField').value = '';
+        }
+
+        function showManagePublicResourcesPopup() {
+            document.getElementById('managePublicResourcesPopup').classList.add('visible');
+        }
+
+        function sendPublicResources() {
+            const money = document.getElementById('moneyAdjustField').value;
+            const recipient = document.getElementById('publicResourceAffectedSelect').value;
+
+            if (money === '' || recipient === '') {
+                alert('Please fill in all fields before sending.');
+                return;
+            }
+
+            alert(`Sent ${money}€ to ${recipient}.`);
+            document.getElementById('moneyAdjustField').value = '';
+            document.getElementById('publicResourceAffectedSelect').selectedIndex = 0;
+        }
+
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('visible');
+        }
+
+        function logout() {
+            alert('Logging out...');
+            setTimeout(function() {
+                window.location.href = '../index.html';  // Usar ruta absoluta
+            }, 3000);  // 3000 ms = 3 segundos
+        }
+
+        function showHistoryPopup() {
+            document.getElementById('historyPopup').classList.add('visible');
+        }
+
+        function updateHistoryTable() {
+            const type = document.getElementById('historyTypeSelect').value;
+            const tableBody = document.getElementById('historyTable').querySelector('tbody');
+
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (type === 'funds') {
+                tableBody.innerHTML += '<tr><td>Donor 1</td><td>Receiver 1</td><td>$100</td></tr>';
+                tableBody.innerHTML += '<tr><td>Donor 2</td><td>Receiver 2</td><td>$200</td></tr>';
+            } else if (type === 'goods') {
+                tableBody.innerHTML += '<tr><td>Donor 1</td><td>Receiver 1</td><td>50 items</td></tr>';
+                tableBody.innerHTML += '<tr><td>Donor 2</td><td>Receiver 2</td><td>30 items</td></tr>';
+            }
+        }
+    </script>
+</body>
+</html>

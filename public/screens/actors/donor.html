@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Screen</title>
+
+    <!-- Link to external CSS -->
+    <link rel="stylesheet" href="../../css/actorScreen.css">
+
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    <style>
+        /* Add styles for the signature canvas */
+        .canvas-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        canvas {
+            border: 1px solid black;
+            width: 100%;
+            height: 200px;
+        }
+
+        #signatureMessage {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        #signaturePopup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 2px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        #signaturePopup .close-button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="dropdown">
+            <span style="color: white; cursor: pointer;">Menu</span>
+            <div class="dropdown-content">
+                <a href="#" onclick="logout()">Log-out</a>
+                <a href="#" onclick="openChat()">Chat</a>
+                <a href="#" onclick="showHistoryPopup()">Consult History</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <h3>Donor Actions</h3>
+
+        <div class="buttons-container">
+            <button onclick="showDonationPopup()">Make a Donation</button>
+            <button onclick="sendDonation()">Send Donation</button>
+        </div>
+    </div>
+
+    <!-- Donation Popup -->
+    <div id="donationPopup" class="popup">
+        <div class="popup-header">Specify Your Donation</div>
+        <label for="donationType">Donation Type:</label>
+        <select id="donationType" onchange="updateDonationFields()">
+            <option value="food">Food</option>
+            <option value="clothing">Clothing</option>
+            <option value="funds">Funds</option>
+        </select>
+
+        <div id="fundsFields" style="display: none;">
+            <label for="donationAmount">Amount:</label>
+            <input type="number" id="donationAmount" placeholder="Enter amount">
+
+            <label for="currency">Currency:</label>
+            <select id="currency">
+                <option value="EUR">Euros (EUR)</option>
+                <option value="USD">US Dollars (USD)</option>
+                <option value="GBP">Pounds (GBP)</option>
+            </select>
+        </div>
+
+        <div id="nonFundsFields" style="display: none;">
+            <label for="kilograms">Kilograms:</label>
+            <input type="number" id="kilograms" placeholder="Enter kilograms">
+        </div>
+
+        <button onclick="closePopup('donationPopup')">Confirm</button>
+        <button class="close-button" onclick="closePopup('donationPopup')">Close</button>
+    </div>
+
+    <!-- Signature Popup -->
+    <div id="signaturePopup">
+        <div class="popup-header">Please Sign Below</div>
+        <div class="canvas-container">
+            <canvas id="signatureCanvas"></canvas>
+            <p id="signatureMessage">Draw your signature above</p>
+            <button onclick="confirmSignature()">Confirm Signature</button>
+            <button class="close-button" onclick="closeSignaturePopup()">Close</button>
+        </div>
+    </div>
+
+    <!-- Donation History Popup -->
+    <div id="historyPopup" class="popup">
+        <div class="popup-header">Consult History</div>
+        <p>Here you can view your donation history (feature under development).</p>
+        <button class="close-button" onclick="closePopup('historyPopup')">Close</button>
+    </div>
+
+    <script>
+        let donationDetails = {};
+        let signatureDataUrl = null;
+
+        function showDonationPopup() {
+            document.getElementById('donationPopup').classList.add('visible');
+        }
+
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('visible');
+        }
+
+        function updateDonationFields() {
+            const donationType = document.getElementById('donationType').value;
+            if (donationType === 'funds') {
+                document.getElementById('fundsFields').style.display = 'block';
+                document.getElementById('nonFundsFields').style.display = 'none';
+            } else {
+                document.getElementById('fundsFields').style.display = 'none';
+                document.getElementById('nonFundsFields').style.display = 'block';
+            }
+        }
+
+        function sendDonation() {
+            const type = document.getElementById('donationType').value;
+            let amount, currency, kilograms;
+
+            if (type === 'funds') {
+                amount = document.getElementById('donationAmount').value;
+                currency = document.getElementById('currency').value;
+                if (!amount || !currency) {
+                    alert('Please fill in all the donation details before sending.');
+                    return;
+                }
+                donationDetails = { type, amount, currency };
+            } else {
+                kilograms = document.getElementById('kilograms').value;
+                if (!kilograms) {
+                    alert('Please fill in all the donation details before sending.');
+                    return;
+                }
+                donationDetails = { type, kilograms };
+            }
+
+            openSignaturePopup();
+        }
+
+        function openSignaturePopup() {
+            document.getElementById('signaturePopup').style.display = 'block';
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 400;
+            canvas.height = 150;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            });
+
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+            canvas.addEventListener('mouseout', () => isDrawing = false);
+        }
+
+        function confirmSignature() {
+            const canvas = document.getElementById('signatureCanvas');
+            signatureDataUrl = canvas.toDataURL();
+            closeSignaturePopup();
+            generatePDF(donationDetails, signatureDataUrl);
+        }
+
+        function closeSignaturePopup() {
+            document.getElementById('signaturePopup').style.display = 'none';
+        }
+
+        async function generatePDF(details, signatureDataUrl) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add content to the PDF
+            doc.setFontSize(18);
+            doc.text("Donation Receipt", 105, 20, { align: "center" });
+
+            doc.setFontSize(12);
+            doc.text("Thank you for your generous donation!", 20, 40);
+
+            if (details.type === 'funds') {
+                doc.text(`Donation Type: ${details.type}`, 20, 60);
+                doc.text(`Amount: ${details.amount} ${details.currency}`, 20, 70);
+            } else {
+                doc.text(`Donation Type: ${details.type}`, 20, 60);
+                doc.text(`Kilograms: ${details.kilograms}`, 20, 70);
+            }
+
+            const currentDate = new Date().toLocaleDateString();
+            doc.text(`Date: ${currentDate}`, 20, 80);
+
+            // Add the signature image to the PDF
+            if (signatureDataUrl) {
+                doc.text("Donor's Signature", 20, 100);
+                doc.addImage(signatureDataUrl, "PNG", 20, 110, 50, 20);
+            }
+
+            // Save the PDF
+            doc.save("donation_receipt.pdf");
+            alert("Your donation receipt has been generated and downloaded.");
+        }
+
+        function logout() {
+            alert('Logging out...');
+            setTimeout(() => window.location.href = "../index.html", 3000);
+        }
+
+        function openChat() {
+            alert('Opening chat...');
+        }
+    </script>
+</body>
+</html>

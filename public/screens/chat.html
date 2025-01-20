@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+
+    <!-- External CSS link -->
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-header {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .chat-box {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            background-color: #fafafa;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .message.sender {
+            justify-content: flex-end;
+        }
+
+        .message.receiver {
+            justify-content: flex-start;
+        }
+
+        .message .message-text {
+            max-width: 75%;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #e0e0e0;
+            word-wrap: break-word;
+            margin: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .message.sender .message-text {
+            background-color: #6fbcf7;
+        }
+
+        .message.receiver .message-text {
+            background-color: #cfe2ff;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .input-container input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        .input-container button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .input-container button:hover {
+            background-color: #45a049;
+        }
+
+        .actor-selection {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .notification {
+            font-size: 14px;
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .conversation-list {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .conversation-item {
+            cursor: pointer;
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .conversation-item:hover {
+            background-color: #f0f0f0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            Chat
+        </div>
+
+        <!-- Actor Selection -->
+        <div class="actor-selection">
+            <label for="actorSelect">Select Actor:</label>
+            <select id="actorSelect" onchange="startNewConversation()">
+                <option value="">-- Select Actor --</option>
+                <option value="volunteer">Volunteer</option>
+                <option value="donor">Donor</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+
+        <!-- Chat Box -->
+        <div id="chatBox" class="chat-box"></div>
+
+        <!-- Input for New Message -->
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Type a message..." onkeyup="enableSendButton()">
+            <button id="sendButton" onclick="sendMessage()" disabled>Send</button>
+        </div>
+
+        <!-- Show Previous Conversations Button -->
+        <button id="viewConversationsButton" onclick="toggleConversations()">View Previous Conversations</button>
+
+        <!-- Conversation List -->
+        <div id="conversationList" class="conversation-list" style="display: none;">
+            <div class="conversation-item" onclick="selectConversation('volunteer')">Conversation with Volunteer</div>
+            <div class="conversation-item" onclick="selectConversation('donor')">Conversation with Donor</div>
+            <div class="conversation-item" onclick="selectConversation('admin')">Conversation with Admin</div>
+        </div>
+
+        <!-- Notification for errors -->
+        <div id="notification" class="notification"></div>
+    </div>
+
+    <script>
+        // Variables
+        const chatBox = document.getElementById('chatBox');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const notification = document.getElementById('notification');
+        const viewConversationsButton = document.getElementById('viewConversationsButton');
+        const conversationList = document.getElementById('conversationList');
+        const actorSelect = document.getElementById('actorSelect');
+
+        let currentActor = '';
+        let userType = 'sender';  // 'sender' or 'receiver'
+
+        // Enable send button if the input is not empty
+        function enableSendButton() {
+            if (messageInput.value.trim() !== '') {
+                sendButton.disabled = false;
+                notification.innerHTML = '';  // Clear any previous notifications
+            } else {
+                sendButton.disabled = true;
+            }
+        }
+
+        // Start a new conversation based on selected actor
+        function startNewConversation() {
+            currentActor = actorSelect.value;
+            if (currentActor) {
+                chatBox.innerHTML = '';  // Clear the chat box
+                toggleConversations(false);  // Hide previous conversations
+                enableSendButton();
+                notification.innerHTML = '';  // Clear any previous notifications
+                messageInput.focus();
+            }
+        }
+
+        // Send a message
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message === '') {
+                notification.innerHTML = 'Please type a message before sending.';
+                return;
+            }
+
+            // Create message element
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', userType);
+            messageElement.innerHTML = `<div class="message-text">${message}</div>`;
+            chatBox.appendChild(messageElement);
+
+            // Scroll to the bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Clear the input field and disable the send button
+            messageInput.value = '';
+            enableSendButton();
+
+            // Switch user type for next message (this could be dynamic based on user interaction)
+            userType = userType === 'sender' ? 'receiver' : 'sender';
+        }
+
+        // Toggle the conversation list visibility
+        function toggleConversations(show = true) {
+            conversationList.style.display = show ? 'block' : 'none';
+            viewConversationsButton.innerText = show ? 'Hide Previous Conversations' : 'View Previous Conversations';
+        }
+
+        // Select a previous conversation (this would actually load the conversation history from a database)
+        function selectConversation(actor) {
+            currentActor = actor;
+            chatBox.innerHTML = '';  // Clear the chat box to load selected conversation
+            toggleConversations(false);  // Hide the conversation list
+            notification.innerHTML = `You are now chatting with ${actor}.`;
+        }
+    </script>
+
+</body>
+</html>

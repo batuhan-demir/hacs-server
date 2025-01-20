@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aid Organization Management</title>
+    <link rel="stylesheet" href="../../css/actorScreen.css"> <!-- Ruta del archivo CSS -->
+</head>
+<body>
+    <div class="header">
+        <div class="dropdown">
+            <span style="color: white; cursor: pointer;">Menu</span>
+            <div class="dropdown-content">
+                <a href="#" onclick="logout()">Log-out</a>
+                <a href="#" onclick="showHistoryPopup()">View History</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="buttons-container">
+            <button onclick="showManageFundsPopup()">Manage Funds</button>
+            <button onclick="showManageGoodsPopup()">Manage Goods</button>
+            <button onclick="showQualifyVolunteerPopup()">Qualify Volunteer</button>
+        </div>
+        <div>
+            <h3>Assign Activities</h3>
+            <select id="activitySelect" onchange="updateUsers()">
+                <option value="">Select an activity</option>
+                <option value="activity1">Activity 1</option>
+                <option value="activity2">Activity 2</option>
+            </select>
+            <select id="userSelect" onchange="updateUserPreferences()">
+                <option value="">Select a user</option>
+                <option value="user1" data-preferences="Preference A">User 1</option>
+                <option value="user2" data-preferences="Preference B">User 2</option>
+            </select>
+            <div id="userDetails">
+                <p><strong>User:</strong> <span id="selectedUser">None</span></p>
+                <p><strong>Preferences:</strong> <span id="userPreferences">None</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="manageFundsPopup" class="popup">
+        <div class="popup-header">Manage Funds</div>
+        <label>Donation made by:</label>
+        <select id="donorSelect">
+            <option value="donor1">Donor 1</option>
+            <option value="donor2">Donor 2</option>
+        </select>
+        <label>Money to send:</label>
+        <input type="number" id="moneyAmount" min="1" max="1000">
+        <label>User that receives the money:</label>
+        <select id="affectedUserSelect">
+            <option value="affected1">Affected User 1</option>
+            <option value="affected2">Affected User 2</option>
+        </select>
+        <button onclick="sendFunds()">Send</button>
+        <button class="close-button" onclick="closePopup('manageFundsPopup')">Close</button>
+    </div>
+
+    <div id="manageGoodsPopup" class="popup">
+        <div class="popup-header">Manage Goods</div>
+        <label>Donation made by:</label>
+        <select id="goodsDonorSelect">
+            <option value="donor1">Donor 1</option>
+            <option value="donor2">Donor 2</option>
+        </select>
+        <label>Quantity to send:</label>
+        <input type="number" id="goodsQuantity" min="1" max="100">
+        <label>User that receives the goods:</label>
+        <select id="goodsAffectedUserSelect">
+            <option value="affected1">Affected User 1</option>
+            <option value="affected2">Affected User 2</option>
+        </select>
+        <button onclick="sendGoods()">Send</button>
+        <button class="close-button" onclick="closePopup('manageGoodsPopup')">Close</button>
+    </div>
+
+    <div id="qualifyVolunteerPopup" class="popup">
+        <div class="popup-header">Qualify Volunteer</div>
+        <label>Individuals to qualify:</label>
+        <select id="volunteerSelect" onchange="updateVolunteerActivities()">
+            <option value="volunteer1">Volunteer 1</option>
+            <option value="volunteer2">Volunteer 2</option>
+        </select>
+        <label>Activity to evaluate:</label>
+        <select id="volunteerActivitySelect">
+            <option value="activity1">Activity 1</option>
+            <option value="activity2">Activity 2</option>
+        </select>
+        <label>Rating:</label>
+        <input type="number" id="volunteerRating" min="1" max="5">
+        <button onclick="qualifyVolunteer()">Qualify</button>
+        <button class="close-button" onclick="closePopup('qualifyVolunteerPopup')">Close</button>
+    </div>
+
+    <div id="historyPopup" class="popup">
+        <div class="popup-header">View History</div>
+        <label>Donation type:</label>
+        <select id="historyTypeSelect" onchange="updateHistoryTable()">
+            <option value="funds">Funds</option>
+            <option value="goods">Goods</option>
+        </select>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Donor</th>
+                    <th>Receiver</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically populated -->
+            </tbody>
+        </table>
+        <button class="close-button" onclick="closePopup('historyPopup')">Close</button>
+    </div>
+
+    <script>
+        function showManageFundsPopup() {
+            document.getElementById('manageFundsPopup').classList.add('visible');
+        }
+
+        function showManageGoodsPopup() {
+            document.getElementById('manageGoodsPopup').classList.add('visible');
+        }
+
+        function showQualifyVolunteerPopup() {
+            document.getElementById('qualifyVolunteerPopup').classList.add('visible');
+        }
+
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('visible');
+        }
+
+        function updateUsers() {
+            // Update users based on selected activity
+        }
+
+        function updateUserPreferences() {
+            const userSelect = document.getElementById('userSelect');
+            const selectedOption = userSelect.options[userSelect.selectedIndex];
+            const preferences = selectedOption.getAttribute('data-preferences') || 'None';
+
+            document.getElementById('selectedUser').textContent = selectedOption.textContent;
+            document.getElementById('userPreferences').textContent = preferences;
+        }
+
+        function sendFunds() {
+            // Logic for sending funds
+        }
+
+        function sendGoods() {
+            // Logic for sending goods
+        }
+
+        function qualifyVolunteer() {
+            // Logic for qualifying a volunteer
+        }
+
+        function showHistoryPopup() {
+            document.getElementById('historyPopup').classList.add('visible');
+        }
+
+        function updateHistoryTable() {
+            const type = document.getElementById('historyTypeSelect').value;
+            const tableBody = document.getElementById('historyTable').querySelector('tbody');
+
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (type === 'funds') {
+                tableBody.innerHTML += '<tr><td>Donor 1</td><td>Receiver 1</td><td>$100</td></tr>';
+                tableBody.innerHTML += '<tr><td>Donor 2</td><td>Receiver 2</td><td>$200</td></tr>';
+            } else if (type === 'goods') {
+                tableBody.innerHTML += '<tr><td>Donor 1</td><td>Receiver 1</td><td>50 items</td></tr>';
+                tableBody.innerHTML += '<tr><td>Donor 2</td><td>Receiver 2</td><td>30 items</td></tr>';
+            }
+        }
+
+        function updateVolunteerActivities() {
+            // Logic to update activities for selected volunteer
+        }
+
+        function logout() {
+            alert('Logging out...');
+            // Esperar 3 segundos antes de redirigir
+            setTimeout(function() {
+                window.location.href = '../index.html';  // Usar ruta absoluta
+            }, 3000);  // 3000 ms = 3 segundos
+        }
+    </script>
+</body>
+</html>

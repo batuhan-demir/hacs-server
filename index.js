@@ -63,6 +63,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public/screens'));
 
 app.get('/chat/:id', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'chat', 'index.html'));
