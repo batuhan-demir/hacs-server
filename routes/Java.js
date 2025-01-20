@@ -32,7 +32,19 @@ const redirect = async (req, res, next) => {
             res.status(_req.status).json(data);
             return;
         }
-        res.status(_req.status).send(data);
+        //error check
+        if (!!_req.ok)
+            return res.status(_req.status).json({
+                success: true,
+                type: "java",
+                data
+            });
+        else
+            return res.status(_req.status).json({
+                success: false,
+                type: "java",
+                message: data
+            });
     }
     catch (err) {
         console.error(err);
